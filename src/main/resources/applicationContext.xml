@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://mybatis.org/schema/mybatis-spring
+                           http://mybatis.org/schema/mybatis-spring.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--使用Annotation-->
+    <context:annotation-config/>
+    <!--把mapper包所有接口当做mapper配置后自动引入mapper类-->
+    <mybatis:scan base-package="com.visitor.mapper"/>
+    <!--扫描有Spring相关注解的类，把类注册为Spring的bean-->
+    <context:component-scan base-package="com.visitor"/>
+
+    <context:property-placeholder location="classpath:db.properties"/>
+
+    <!--配置dbcp数据库连接池-->
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+        <property name="username" value="${jdbc.user}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="driverClassName" value="${jdbc.driverClass}"/>
+        <property name="url" value="${jdbc.jdbcUrl}"/>
+        <!--最大连接数-->
+        <property name="maxTotal" value="${maxTotal}"/>
+        <!--最大空闲连接-->
+        <property name="maxIdle" value="${maxIdle}"/>
+        <!--最小空闲连接-->
+        <property name="minIdle" value="${minIdle}"/>
+        <!--初试化连接-->
+        <property name="initialSize" value="${initialSize}"/>
+    </bean>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"
+          p:dataSource-ref="dataSource"/>
+
+    <!--JDBC事务管理器-->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+          p:dataSource-ref="dataSource"/>
+    <!-- 启动支持annotation注解方式事务管理 -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+</beans>
